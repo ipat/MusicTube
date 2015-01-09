@@ -1,0 +1,133 @@
+@import url(../fonts/thsarabunnew.css);
+
+*{ margin: 0; padding: 0; }
+body{ font-family: 'THSarabunNew' !important; font-size: 0.95em; line-height: 1.7em; background: #e1e1e1; }
+h1,h2,h3,h4,h5{ line-height: 2em; clear: both; }
+h2{ background: #0F7AC2; padding: 0 10px; color: #FFF; margin: 20px 0 10px; }
+p{ padding: 0 0 10px 0; }
+.n{ font-weight: normal; font-style: normal; }
+.b{ font-weight: bold; font-style: normal; }
+.i{ font-weight: normal; font-style: italic; }
+.bi{ font-weight: bold; font-style: italic; }
+ul,ol{padding: 0 0 10px 0;}
+li{ margin: 0 0 0 2em; padding: 0 0 5px 0; }
+code{ background: #FFF; }
+#container{ width: 900px; margin: 20px auto 0; border: 1px solid #333; padding: 20px; background: #FFF; }
+#instruction{ padding: 10px 10px 0; background: #e6e6e6; }
+#footer{ width: 940px; margin: 0 auto; padding: 10px 0 20px; }
+.right{text-align: right;}
+.type{ font-family: 'THSarabunNew', sans-serif; height: 5em; width: 98%;font-size: 1em;clear: both;margin: 20px auto 10px;padding: 5px 1%; }
+
+html, body {
+  /*padding: 50px;*/
+  /*font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;*/
+  height: 100%;
+  overflow: hidden;
+}
+
+a {
+  color: #00B7FF;
+}
+
+.header {
+	padding-top: 0.5em;
+	padding-bottom: .4em;
+	font-size: 2.7em;
+	/*color: white;*/
+}
+
+.full-page {
+	height: 100%;
+	vertical-align: middle;
+}
+
+.center{
+	text-align: center;
+}
+
+#mydiv {
+    position:fixed;
+    top: 50%;
+    left: 50%;
+    width:40em;
+    height:18em;
+    margin-top: -9em; /*set to a negative number 1/2 of your height*/
+    margin-left: -20em; /*set to a negative number 1/2 of your width*/
+    /*border: 1px solid #ccc;*/
+    background-color: rgba(255, 255, 255, 1);
+    /*border-radius: 10px;*/
+    box-shadow: 0px 4px 20px black;
+    overflow: none;
+    padding-left: 2em;
+    padding-right: 2em;
+}
+
+.blurImage{
+	top: -100px;
+	left: -100px;
+	position: relative;
+	width: 120%;
+	height: 120%;
+	overflow: hidden;
+	-webkit-filter: blur(60px);
+    -moz-filter: blur(60px);
+    -o-filter: blur(60px);
+    -ms-filter: blur(60px);
+    filter: blur(60px);
+    background-size: 120% 120%;
+    opacity: 0.9;
+}
+
+input[type="text"] {
+  padding: 10px;
+  border: none;
+  border-bottom: solid 2px #c9c9c9;
+  width: 100%;
+  line-height: 1.5em;
+  font-size: 1.5em;
+  height: 2em;
+  transition: border 0.3s;
+}
+input[type="text"]:focus,
+input[type="text"].focus {
+  border-bottom: solid 2px #969696;
+}
+
+textarea:hover, 
+input:hover, 
+textarea:active, 
+input:active, 
+textarea:focus, 
+input:focus,
+button:focus,
+button:active,
+button:hover
+{
+    outline:0px !important;
+    -webkit-appearance:none;
+}
+
+.blue-button{
+	margin: 1em;
+	width: 15em;
+	height: 3em;
+	font-size: 1.2em;
+	background-color: #3498db;
+	position: relative;
+	box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.6);
+	color: white;
+	border: 0;
+}
+
+.blue-button:active{
+	top: 2px;
+	box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.6);
+}
+
+.moreHeight{
+	width:40em !important;
+    height:42em !important;
+    margin-top: -21em !important; /*set to a negative number 1/2 of your height*/
+    margin-left: -20em !important; /*set to a negative number 1/2 of your width*/
+    
+}

@@ -1,0 +1,12 @@
+{
+	"development" : {
+		"db_host": "localhost",
+		"db_user": "root",
+		"db_pass": "root"
+	},
+	"production": {
+		"db_host": "192.168.1.9",
+		"db_user": "myappdb",
+		"db_pass": "!p4ssw0rd#"
+	}
+}

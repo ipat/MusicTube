@@ -1,0 +1,12 @@
+extends layout
+
+block content
+	div(class='full-page blurImage', style='background-image:url("/images/bg-min.jpg");')
+	div(class='container center full-page', id='mydiv')
+		h1(class='header') Welcome to MusicTube
+		h4(style="color:red")= message
+		form(action='url')
+			input(type='text', name="url", class="input-style", placeholder="Paste your YouTube url here...")
+			br
+			input(type='submit', class="blue-button", value="Submit")
+		//- p  #{title}

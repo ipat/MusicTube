@@ -1,0 +1,26 @@
+extends layout
+
+block content
+	//- h1 #{videoName}
+	//- img(src=thumbnail)
+	//- p  #{title}
+
+	script(src="//code.jquery.com/jquery-1.11.2.min.js")
+	script(src="/javascripts/process.js")
+	div(class='full-page blurImage', style='background-image:url(' + thumbnail +');')
+	div(class='container center full-page moreHeight', id='mydiv')
+		h1(class='header', style="font-size: 2em") #{videoName}
+		img(src=thumbnail, style="box-shadow: 0px 2px 5px rgba(0,0,0,0.7);")
+		div(class="details")
+			form(action="confirm")
+				input(type="hidden", name="url", value=videoUrl)
+				input(type="hidden", name="name", value=videoName)
+				input(type="hidden", name="thumbnail", value=thumbnail)
+				input(type='submit', class="blue-button", value="Process", class="processBtn")
+		div(class="loading", style="display:none; padding-top: 1.2em;")
+			img(src="/images/loading.gif")
+			//- input(type='submit', class="blue-button", value="Submit")	
+		//- form(action='url')
+		//- 	input(type='text', name="url", class="input-style", placeholder="Paste your YouTube url here...")
+		//- 	br
+		//- 	input(type='submit', class="blue-button", value="Submit")

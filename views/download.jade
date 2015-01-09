@@ -1,0 +1,11 @@
+extends layout
+
+block content
+	div(class='full-page blurImage', style='background-image:url(' + albumart +');')
+	div(class='container center full-page moreHeight', id='mydiv')
+		h1(class='header', style="font-size: 2em") #{musicName}
+		img(src=albumart, style="height:22em; box-shadow: 0px 2px 5px rgba(0,0,0,0.7);")
+		form(action=songName)
+			input(type='submit', class="blue-button", value="Download")
+		form(action='/')
+			input(type='submit', class="blue-button", style="background-color:#2ecc71; margin-top:0", value="Back to home")
