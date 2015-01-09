@@ -103,6 +103,8 @@ app.get('/confirm', function(req, res){
     nameTemp = nameTemp.replace(/\「.*\」 /g, "");
     nameTemp = nameTemp.replace(/\「.*\」/g, "");
     nameTemp = nameTemp.replace("MV", "");
+    nameTemp = nameTemp.replace("Official", "");
+    nameTemp = nameTemp.replace("official", "");
     nameTemp = nameTemp.replace(/["']/g, "");
     nameTemp = nameTemp.split('.').join("");
     stringName = nameTemp.split(" ");
