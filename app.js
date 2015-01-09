@@ -47,7 +47,7 @@ app.get('/url', function(req, res){
             response.on('end', function(){
                 parseString(xml, function(err, result){
                     if(result === undefined){
-                        res.render('index', {title: "MusicTube", message: "Something went wrong! Try again."});
+                        res.render('index', {title: "MusicTube", message: "Something goes wrong! Try again."});
                         return;
                     }
                     var videoName = result['entry']['title'][0]['_'];
@@ -60,11 +60,11 @@ app.get('/url', function(req, res){
 
         req.on('error', function(err){
             console.log('it is error');
-            res.render('getVideo', {videoName: "Something goes wrong!"});
+            res.render('index', {title: "MusicTube", message: "Something goes wrong! Try again."});
             console.log(err);
         });
     } else { 
-        res.render('getVideo', {videoName: "Your video is Invalid"});
+        res.render('index', {title: "MusicTube", message: "Invalid video link."});
     }
 
 	//res.render('getVideo', {title: videoUrl});

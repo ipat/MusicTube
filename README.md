@@ -11,7 +11,10 @@ MusicTube require ffmpeg to convert file. So in <code>app.js</code>, it has the 
 
 
 ###Running MusicTube
-Using <code>node app</code> to run the program but if your platform has a limited memory I suggest to run using <code>node --max-old-space-size=128 app.js</code> and  128 is the number of memory that node will start a gabage collector to clean old memory.
+Using <code>node app</code> to run the program but if your platform has a limited memory I suggest to run using <code>node --max-old-space-size=128 app.js</code> which 128 is the number of memory that node will start a gabage collector to clean old memory.
+
+###Run program forever
+To run MusicTube forever you can install forever package using <code>npm -g install forever</code>. Running program uses command <code>forever start app.js</code> or <code>forever start --max-old-space-size=128 app.js</code> .
 
 ###Other
 To pull the MusicTube if you have a conflict you can use "Use theirs" by
@@ -20,6 +23,20 @@ To pull the MusicTube if you have a conflict you can use "Use theirs" by
 git fetch
 git reset --hard origin/master
 ```
+
+To terminate node process using command
+
+```
+ps aux | grep node
+kill -9 PROCESS_ID
+```
+
+or
+
+```
+killall node
+```
+
 
 
 
