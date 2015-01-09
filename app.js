@@ -98,6 +98,10 @@ app.get('/confirm', function(req, res){
     nameTemp = nameTemp.replace(/\[.*\]/g, "");
     nameTemp = nameTemp.replace(/\(.*\) /g, "");
     nameTemp = nameTemp.replace(/\(.*\)/g, "");
+    nameTemp = nameTemp.replace(/\{.*\} /g, "");
+    nameTemp = nameTemp.replace(/\{.*\}/g, "");
+    nameTemp = nameTemp.replace(/\「.*\」 /g, "");
+    nameTemp = nameTemp.replace(/\「.*\」/g, "");
     nameTemp = nameTemp.replace("MV", "");
     nameTemp = nameTemp.replace(/["']/g, "");
     nameTemp = nameTemp.split('.').join("");
@@ -161,6 +165,9 @@ app.get('/confirm', function(req, res){
                         break;
                     }
                 }
+
+                console.log("MaxFound = " + maxFound);
+                console.log("Number = " + a);
 
                 var useData = iTunesData[maxFound]["results"][selectedResult];
 
