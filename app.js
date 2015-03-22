@@ -13,6 +13,7 @@ var config = require('./config.json')[app.get('env')];
 
 app.set('view engine', 'jade');
 app.set('views', './views');
+app.set('base', '/test');
 
 // app.use(express.static(__dirname + './public'));
 // app.use(express.static(__dirname + '/music'));
@@ -82,7 +83,7 @@ app.get('/confirm', function(req, res){
     var videoName = "./" + nameTemp.substr(0,nameTemp.indexOf(' ')) + ".mp3";
     videoName = videoName.replace(/ /g, '%20');
     videoName = videoName.replace(/["']/g, "");
-    ytdl = require('ytdl-core');
+    youtubedl = require('youtube-dl');
     ffmpeg = require('fluent-ffmpeg');
     fs = require('fs');
 
@@ -93,7 +94,8 @@ app.get('/confirm', function(req, res){
     // url = 'https://www.youtube.com/watch?v=U-PQ2Zbf_Gc';
     // mp3 = './aaa.mp3';
 
-    stream = ytdl(videoUrl);
+    stream = youtubedl(videoUrl
+                    , ['--max-quality=18']);  // Set video quality here
     nameTemp = nameTemp.replace(/\[.*\] /g, "");
     nameTemp = nameTemp.replace(/\[.*\]/g, "");
     nameTemp = nameTemp.replace(/\(.*\) /g, "");
@@ -162,7 +164,7 @@ app.get('/confirm', function(req, res){
                 var ffmetadata = require("ffmetadata");
                 var selectedResult = 0;
                 for(var a = 0; a < iTunesData[maxFound]["results"].length; a++){
-                    if(iTunesData[maxFound]["results"][a]["collectionArtistName"] !== "Various Artists"){
+                    if(iTunesData[maxFound]["results"][a]["collectionArtistName"] !== "Various Artists" && iTunesData[maxFound]["results"][a]["kind"] === "song"){
                         selectedResult = a;
                         break;
                     }
@@ -180,7 +182,10 @@ app.get('/confirm', function(req, res){
                 
                 // Rename the song
                 fs.rename("./music/" + videoName, "./music/" + useData["trackName"] + ".mp3", function(){
-                    var albumArt = useData["artworkUrl100"].replace("100x100", "600x600");
+                    if(useData["artworkUrl600"] !== undefined)
+                        var albumArt = useData["artworkUrl600"];
+                    else if(useData["artworkUrl100"] !== undefined)
+                        var albumArt = useData["artworkUrl100"].replace("100x100", "600x600");
                     // Get AlbumArt
                     http.get(albumArt, function(resPic){
                         var imagedata = '';
