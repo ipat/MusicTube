@@ -25,6 +25,7 @@
       "xml2js": "0.4.4",
       "ytdl-core": "0.3.0",
       "youtube-dl": "1.10.5",
-      "youtube-api": "0.3.2"
+      "youtube-api": "0.3.2",
+      "searchitunes": "2.0.1"
   }
 }
