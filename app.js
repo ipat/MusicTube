@@ -6,6 +6,12 @@ var logger = require('morgan');
 var url = require('url');
 var path = require('path');
 var parseString = require('xml2js').parseString;
+var Youtube = require("youtube-api");
+
+Youtube.authenticate({
+    type: "key",
+    key: ""
+});
 
 var app = express();
 var config = require('./config.json')[app.get('env')];
@@ -31,6 +37,12 @@ http.createServer(app).listen(3000, function() {
 
 app.get('/', function(req, res){
     res.render('index', {title: "MusicTube"});
+    // Youtube.videos.list({
+    //     'part': "snippet",
+    //     'id' : "xyJx9G65ilA"
+    // }, function(err, res){
+    //     // console.log(res['items'][0]['snippet']);
+    // });
 });
 
 app.get('/url', function(req, res){
@@ -39,24 +51,35 @@ app.get('/url', function(req, res){
     var videoid = videoUrl.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
     // console.log(videoid);
     if(videoid != null) {
-        var request = http.get('http://gdata.youtube.com/feeds/api/videos/' + videoid[1], function(response){
-            var xml = '';
-            response.on('data', function(chunk){
-                xml += chunk;
-            });
+        Youtube.videos.list({'part': "snippet", 'id' : videoid[1]}, function(err, response){
+        // var request = http.get('http://gdata.youtube.com/feeds/api/videos/' + videoid[1], function(response){
+            if(response['items'].length < 1) {
+                res.render('index', {title: "MusicTube", message: "Invalid video link."});
+            }
+            var data = response['items'][0]['snippet'];
+            console.log(data)
+            var videoName = data['title'];
+            var lastThumb;
+            for(lastThumb in data['thumbnails']);
+            var thumbnail = data['thumbnails'][lastThumb]['url'];
+            res.render('getVideo', {videoName: videoName, thumbnail: thumbnail, videoUrl: videoUrl, title: videoName});
+            // var xml = '';
+            // response.on('data', function(chunk){
+            //     xml += chunk;
+            // });
 
-            response.on('end', function(){
-                parseString(xml, function(err, result){
-                    if(result === undefined){
-                        res.render('index', {title: "MusicTube", message: "Something goes wrong! Try again."});
-                        return;
-                    }
-                    var videoName = result['entry']['title'][0]['_'];
-                    var thumbnail = result['entry']['media:group'][0]['media:thumbnail'][0]['$']['url'];
-                    res.render('getVideo', {videoName: videoName, thumbnail: thumbnail, videoUrl: videoUrl, title: videoName});
-                });
+            // response.on('end', function(){
+            //     parseString(xml, function(err, result){
+            //         if(result === undefined){
+            //             res.render('index', {title: "MusicTube", message: "Something goes wrong! Try again."});
+            //             return;
+            //         }
+            //         var videoName = result['entry']['title'][0]['_'];
+            //         var thumbnail = result['entry']['media:group'][0]['media:thumbnail'][0]['$']['url'];
+            //         res.render('getVideo', {videoName: videoName, thumbnail: thumbnail, videoUrl: videoUrl, title: videoName});
+            //     });
                 
-            });
+            // });
         });
 
         req.on('error', function(err){
@@ -95,7 +118,7 @@ app.get('/confirm', function(req, res){
     // mp3 = './aaa.mp3';
 
     stream = youtubedl(videoUrl
-                    , ['--max-quality=18']);  // Set video quality here
+                    , ['--format=18']);  // Set video quality here
     nameTemp = nameTemp.replace(/\[.*\] /g, "");
     nameTemp = nameTemp.replace(/\[.*\]/g, "");
     nameTemp = nameTemp.replace(/\(.*\) /g, "");
