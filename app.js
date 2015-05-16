@@ -51,11 +51,27 @@ app.get('/url', function(req, res){
     var videoUrl = url_parts.query['url'];
     var videoid = videoUrl.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
     if(videoid != null) {
-        Youtube.videos.list({'part': "snippet", 'id' : videoid[1]}, function(err, response){
+        Youtube.videos.list({'part': "snippet, contentDetails", 'id' : videoid[1]}, function(err, response){
             if(response['items'].length < 1) {
                 res.render('index', {title: "MusicTube", message: "Invalid video link."});
             }
             var data = response['items'][0]['snippet'];
+            console.log(response['items'][0]['contentDetails']);
+
+            // HERE Limit Video duration
+            var reptms = /^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/;
+            var hours = 0, minutes = 0, seconds = 0, totalseconds;
+
+            if (reptms.test(response['items'][0]['contentDetails']['duration'])) {
+                var matches = reptms.exec(response['items'][0]['contentDetails']['duration']);
+                if (matches[1]) hours = Number(matches[1]);
+                if (matches[2]) minutes = Number(matches[2]);
+                if (matches[3]) seconds = Number(matches[3]);
+                totalseconds = hours * 3600  + minutes * 60 + seconds;
+
+                if(totalseconds > 600)
+                    res.render('index', {title: "MusicTube", message: "Video too long."});
+            }
             var videoName = data['title'];
             var lastThumb;
             for(lastThumb in data['thumbnails']);
@@ -189,6 +205,7 @@ app.get('/url', function(req, res){
 
                         } else {
                             console.log('HERE NOT FOUND');
+                            videoName = videoName.replace(/%20/g, " ");
                             data = {
                                 artist: "",
                                 album: "",
@@ -244,7 +261,7 @@ app.post('/confirm', function(req, res){
     function startDownload() {
         var imageName;
         var songName;
-
+            var defaultSongName = req.body.title;
             req.body.title = req.body.title + " - " + req.body.artist;
             proc = new ffmpeg({source:stream});
             proc.setFfmpegPath('./ffmpeg.exe');
@@ -289,7 +306,7 @@ app.post('/confirm', function(req, res){
                                 data = {
                                     artist: req.body.artist,
                                     album: req.body.album,
-                                    title: req.body.title,
+                                    title: defaultSongName,
                                     date: req.body.date,
                                     track: req.body.track,
                                     disc: req.body.disc
