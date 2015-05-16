@@ -5,22 +5,89 @@ block content
 	//- img(src=thumbnail)
 	//- p  #{title}
 
-	script(src="//code.jquery.com/jquery-1.11.2.min.js")
-	script(src="/javascripts/process.js")
-	div(class='full-page blurImage', style='background-image:url(' + thumbnail +');')
-	div(class='container center full-page moreHeight', id='mydiv')
-		h1(class='header', style="font-size: 2em") #{videoName}
-		img(src=thumbnail, style="box-shadow: 0px 2px 5px rgba(0,0,0,0.7);")
-		div(class="details")
-			form(action="confirm")
-				input(type="hidden", name="url", value=videoUrl)
-				input(type="hidden", name="name", value=videoName)
-				input(type="hidden", name="thumbnail", value=thumbnail)
-				input(type='submit', class="blue-button", value="Process", class="processBtn")
-		div(class="loading", style="display:none; padding-top: 1.2em;")
-			img(src="/images/loading.gif")
-			//- input(type='submit', class="blue-button", value="Submit")	
-		//- form(action='url')
-		//- 	input(type='text', name="url", class="input-style", placeholder="Paste your YouTube url here...")
-		//- 	br
-		//- 	input(type='submit', class="blue-button", value="Submit")
+	div(class='full-page black-mask', style='background:url(' + data.old_albumArt +') center center no-repeat	;background-size:   cover; ')
+	div(class='container')
+		div(style="height: 3em;")
+		div(class="headSpace")
+		div(class='center content')
+			div(class="col-sm-4")
+				img(src=data.albumArt, style="box-shadow: 0px 2px 5px rgba(0,0,0,0.7);" class="albumArt")
+			div(class="col-sm-8" style="text-align:left;")
+				span(class='', style="font-size: 2.4em") #{data.title} - #{data.artist}
+				
+				div(class="details")
+
+					hr(style="margin-top:10px; margin-bottom:10px;")
+					form(action="confirm", method="POST")
+						
+						div(class="musicInfo")
+							label(class="platformLabel") Album : #{data.album}
+							br
+							label(class="platformLabel") Artist : #{data.artist}
+							br
+							label(class="platformLabel") Track : #{data.track}
+							br
+							label(class="platformLabel") Disc : #{data.disc}
+							br
+							label(class="platformLabel")
+								a(id="edit" style="cursor:pointer") Incorrect song info? Click here to edit.
+
+						div(class="editInfo", style="display:none; font-weight:normal")
+							div(class="form-group col-sm-12")
+								label(for="title") Song Title
+								input(type="text", name="title", value=data.title)
+							div(class="form-group col-sm-6")
+								label(for="album") Album
+								input(type="text", name="album", value=data.album)
+							div(class="form-group col-sm-6")
+								label(for="artist") Artist
+								input(type="text", name="artist", value=data.artist)
+							div(class="form-group col-sm-6")
+								label(for="date") Date
+								input(type="text", name="date", value=data.date)
+							div(class="form-group col-sm-3")
+								label(for="track") Track
+								input(type="text", name="track", value=data.track)
+							div(class="form-group col-sm-3")
+								label(for="disc") Disc
+								input(type="text", name="disc", value=data.disc)
+							//- select(name="albumArt")
+							div(class="form-group col-sm-12")
+								label Select album art
+								div(id="radio")
+									input(type="radio" id="new" name="albumArt" class="input_hidden" value=data.albumArt checked="checked")
+									label(for="new" class="selected" style="flaot:left;")
+										img(src=data.albumArt class="albumChoose")
+									input(type="radio" id="old" name="albumArt" class="input_hidden" value=data.old_albumArt)
+									label(for="old" style="flaot:left;")
+										img(src=data.old_albumArt class="albumChoose")
+						div(id="radio" class="col-md-12" style="padding-left: 0;")
+							input(type="radio" class="input_hidden" id="iTunes" name="platform" value="iTunes" checked="checked")
+							label(for="iTunes" class="selected" style="float:left")
+								img(src="/images/iTunes.png" class="platformIcon")
+								span(class="platformLabel") iTunes
+							input(type="radio" class="input_hidden" id="windows" name="platform" value="Windows")
+							label(for="windows" style="float:left")
+								img(src="/images/windows.png" class="platformIcon")
+								span(class="platformLabel") Windows Media Player
+						br(style="clear:both;")
+
+						input(type="hidden", name="url", value=videoUrl)
+						input(type="hidden", name="name", value=videoName)
+						input(type="hidden", name="thumbnail", value=thumbnail)
+						input(type='submit', class="blue-button", value="Process", class="processBtn" style="margin-left:0; margin-top:0; font-size: 1.2em;")
+					//- form(action="confirm")
+					//- 	input(type="hidden", name="url", value=videoUrl)
+					//- 	input(type="hidden", name="name", value=videoName)
+					//- 	input(type="hidden", name="thumbnail", value=thumbnail)
+					//- 	input(type='submit', class="blue-button", value="Process", class="processBtn")
+				div(class="loading", style="display:none;")
+					div(style="margin-top: 1em;")
+						progress(value="0" max="100")
+						div(id="") Doing hard work for you
+							span(id="waiting")
+				//- input(type='submit', class="blue-button", value="Submit")	
+			//- form(action='url')
+			//- 	input(type='text', name="url", class="input-style", placeholder="Paste your YouTube url here...")
+			//- 	br
+			//- 	input(type='submit', class="blue-button", value="Submit")

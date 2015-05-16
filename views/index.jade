@@ -1,12 +1,15 @@
 extends layout
 
 block content
-	div(class='full-page', style='background:url("/images/headphone.jpg") no-repeat;')
-	div(class='container center full-page', id='mydiv')
-		h1(class='header') Welcome to MusicTube
-		h4(style="color:red")= message
-		form(action='/url')
-			input(type='text', name="url", class="input-style", placeholder="Paste your YouTube url here...")
-			br
-			input(type='submit', class="blue-button", value="Submit")
+	div(class='full-page mask', style='background:url("/images/headphone.jpg") no-repeat;')
+	div(class='container')
+		div(class='center content indexContent')
+			//- h1(class='header') Welcome to MusicTube
+			div(class='container')
+				img(src='/images/logo.png' style="width: 50%")
+			h4(style="color:orange; font-weight:bold")= message
+			form(action='/url')
+				input(type='text', name="url", class="input-style", placeholder="Paste your YouTube url here..." )
+				br
+				input(type='submit', class="blue-button", value="Submit" style="font-size: 1.2em;")
 		//- p  #{title}

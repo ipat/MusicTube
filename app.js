@@ -9,7 +9,9 @@ var path = require('path');
 var parseString = require('xml2js').parseString;
 var Youtube = require("youtube-api");
 var searchitunes = require ('searchitunes');
+var bodyParser = require('body-parser')
 
+// INSERT YOUTUBE API SERVER KEY HERE!!!
 Youtube.authenticate({
     type: "key",
     key: ""
@@ -23,8 +25,11 @@ app.set('view engine', 'jade');
 app.set('views', './views');
 app.set('base', '/test');
 
-// app.use(express.static(__dirname + './public'));
-// app.use(express.static(__dirname + '/music'));
+app.use( bodyParser.json() );       // to support JSON-encoded bodies
+app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+  extended: true
+})); 
+
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'music')));
 
@@ -39,51 +44,175 @@ http.createServer(app).listen(3000, function() {
 
 app.get('/', function(req, res){
     res.render('index', {title: "MusicTube"});
-    // Youtube.videos.list({
-    //     'part': "snippet",
-    //     'id' : "xyJx9G65ilA"
-    // }, function(err, res){
-    //     // console.log(res['items'][0]['snippet']);
-    // });
 });
 
 app.get('/url', function(req, res){
     var url_parts = url.parse(req.url, true);
     var videoUrl = url_parts.query['url'];
     var videoid = videoUrl.match(/(?:https?:\/{2})?(?:w{3}\.)?youtu(?:be)?\.(?:com|be)(?:\/watch\?v=|\/)([^\s&]+)/);
-    // console.log(videoid);
     if(videoid != null) {
         Youtube.videos.list({'part': "snippet", 'id' : videoid[1]}, function(err, response){
-        // var request = http.get('http://gdata.youtube.com/feeds/api/videos/' + videoid[1], function(response){
             if(response['items'].length < 1) {
                 res.render('index', {title: "MusicTube", message: "Invalid video link."});
             }
             var data = response['items'][0]['snippet'];
-            // console.log(data)
             var videoName = data['title'];
             var lastThumb;
             for(lastThumb in data['thumbnails']);
             var thumbnail = data['thumbnails'][lastThumb]['url'];
-            res.render('getVideo', {videoName: videoName, thumbnail: thumbnail, videoUrl: videoUrl, title: videoName});
 
+            var url_parts = url.parse(req.url, true);
+            var nameTemp = videoName;;
+            videoName = videoName.replace(/ /g, '%20');
+            videoName = videoName.replace(/["']/g, "");
+            youtubedl = require('youtube-dl');
+            ffmpeg = require('fluent-ffmpeg');
+            fs = require('fs');
 
-            // var xml = '';
-            // response.on('data', function(chunk){
-            //     xml += chunk;
-            // });
+            var iTunesData = [];
+            var keywords = [];
 
-            // response.on('end', function(){
-            //     parseString(xml, function(err, result){
-            //         if(result === undefined){
-            //             res.render('index', {title: "MusicTube", message: "Something goes wrong! Try again."});
-            //             return;
-            //         }
-            //         var videoName = result['entry']['title'][0]['_'];
-            //         var thumbnail = result['entry']['media:group'][0]['media:thumbnail'][0]['$']['url'];
-            //         res.render('getVideo', {videoName: videoName, thumbnail: thumbnail, videoUrl: videoUrl, title: videoName});
-            //     });
+            nameTemp = nameTemp.replace(/\[.*\] /g, "");
+            nameTemp = nameTemp.replace(/\[.*\]/g, "");
+            nameTemp = nameTemp.replace(/\(.*\) /g, "");
+            nameTemp = nameTemp.replace(/\(.*\)/g, "");
+            nameTemp = nameTemp.replace(/\{.*\} /g, "");
+            nameTemp = nameTemp.replace(/\{.*\}/g, "");
+            nameTemp = nameTemp.replace(/\「.*\」 /g, "");
+            nameTemp = nameTemp.replace(/\「.*\」/g, "");
+            nameTemp = nameTemp.replace("MV", "");
+            nameTemp = nameTemp.replace("Official", "");
+            nameTemp = nameTemp.replace("official", "");
+            nameTemp = nameTemp.replace("【OFFICIAL MV】", "");
+            nameTemp = nameTemp.replace("OFFICIAL", "");
+            nameTemp = nameTemp.replace("【", "");
+            nameTemp = nameTemp.replace("】", "");
+            nameTemp = nameTemp.replace(/["']/g, "");
+            nameTemp = nameTemp.split('.').join("");
+            stringName = nameTemp.split(" ");
+            for(var i = stringName.length -1; i >= 0; i--)
+            {
+                str = "";
+                for(var j = 0; j < i; j++)
+                    str +=  stringName[j] + "+";
+                str += stringName[i];
+                console.log(str);
+                keywords.push(str);
+            }
+
+            var maxFound = -1;
+            var i = 0;
+
+            function fetchITunes(arg, callback) {
+                // console.log(arg.toString);
+                arg = arg.toString();
+                if(maxFound == -1){
+                    searchitunes (
+                        {
+                            term: arg,
+                            media: "music",
+
+                        }, function(err, data) {
+                            if(data !== null){
+                                if(data["resultCount"] !== 0 && maxFound == -1){
+                                    maxFound = i;
+                                }
+                            }
+                            
+                            i++;
+                            callback(data);
+                            
+                        }
+                    );
+                } else {
+                    i++;
+                    callback({});
+
+                }
                 
-            // });
+            }
+
+            function seriesITunes(keyword) {
+                var imageName;
+                var songName;
+                if(keyword) {
+                    fetchITunes(keyword, function(Data){
+                        iTunesData.push(Data);
+                        return seriesITunes(keywords.shift());
+                    });
+                } else {
+
+
+                        if(maxFound !== -1){
+
+
+                            console.log("MaxFound = " + maxFound);
+                            var selectedResult = 0;
+                            for(var a = 0; a < iTunesData[maxFound]["results"].length; a++){
+                                if(iTunesData[maxFound]["results"][a]["collectionArtistName"] !== "Various Artists" && iTunesData[maxFound]["results"][a]["kind"] === "song"){
+                                    selectedResult = a;
+                                    break;
+                                }
+                            }
+
+
+                            console.log("Number = " + a);
+
+
+                            var useData = iTunesData[maxFound]["results"][selectedResult];
+
+                            useData["trackName"] = useData["trackName"].replace(/["']/g, "");
+                            
+
+
+                            
+                        if(useData["artworkUrl600"] !== undefined)
+                            var albumArt = useData["artworkUrl600"];
+                        else if(useData["artworkUrl100"] !== undefined)
+                            var albumArt = useData["artworkUrl100"].replace("100x100", "600x600");
+
+
+                            data = {
+                                artist: useData["artistName"].toString(),
+                                album: useData["collectionName"].toString(),
+                                title: useData["trackName"].toString(),
+                                date: useData["releaseDate"].toString(),
+                                track: useData["trackNumber"].toString(),
+                                disc: useData["discNumber"].toString(),
+                                albumArt: albumArt,
+                                old_albumArt: thumbnail
+                            };
+         
+                            console.log("DONE!!!!");
+                            res.render('getVideo', {title: "MusicTube | " + data.title, videoName: videoName, thumbnail: thumbnail, videoUrl: videoUrl, data: data});
+
+
+                        } else {
+                            console.log('HERE NOT FOUND');
+                            data = {
+                                artist: "",
+                                album: "",
+                                title: videoName,
+                                date: "",
+                                track: "",
+                                disc: "",
+                                albumArt: "http://www.automation-drive.com/EX/05-14-06/Printable_CD_R_Disc.jpg",
+                                old_albumArt: thumbnail
+                            };
+                            res.render('getVideo', {videoName: videoName, thumbnail: thumbnail, videoUrl: videoUrl, data: data});
+
+                        }
+
+
+                }
+            }
+
+            seriesITunes(keywords.shift());
+
+
+
+            
+
         });
 
         req.on('error', function(err){
@@ -95,224 +224,93 @@ app.get('/url', function(req, res){
         res.render('index', {title: "MusicTube", message: "Invalid video link."});
     }
 
-	//res.render('getVideo', {title: videoUrl});
-	// fail();
 });
 
 
 
 
-app.get('/confirm', function(req, res){
-    var url_parts = url.parse(req.url, true);
-    var videoUrl = url_parts.query['url'];
-    var nameTemp = url_parts.query['name'];
-    var thumbnail = url_parts.query['thumbnail'];
-    var videoName = "./" + nameTemp.substr(0,nameTemp.indexOf(' ')) + ".mp3";
-    videoName = videoName.replace(/ /g, '%20');
-    videoName = videoName.replace(/["']/g, "");
+app.post('/confirm', function(req, res){
+
     youtubedl = require('youtube-dl');
     ffmpeg = require('fluent-ffmpeg');
     fs = require('fs');
 
-    var iTunesData = [];
-    var keywords = [];
 
-    // console.log(videoName);
-    // url = 'https://www.youtube.com/watch?v=U-PQ2Zbf_Gc';
-    // mp3 = './aaa.mp3';
 
-    stream = youtubedl(videoUrl
+    stream = youtubedl(req.body.url
                     , ['--format=18']);  // Set video quality here
-    nameTemp = nameTemp.replace(/\[.*\] /g, "");
-    nameTemp = nameTemp.replace(/\[.*\]/g, "");
-    nameTemp = nameTemp.replace(/\(.*\) /g, "");
-    nameTemp = nameTemp.replace(/\(.*\)/g, "");
-    nameTemp = nameTemp.replace(/\{.*\} /g, "");
-    nameTemp = nameTemp.replace(/\{.*\}/g, "");
-    nameTemp = nameTemp.replace(/\「.*\」 /g, "");
-    nameTemp = nameTemp.replace(/\「.*\」/g, "");
-    nameTemp = nameTemp.replace("MV", "");
-    nameTemp = nameTemp.replace("Official", "");
-    nameTemp = nameTemp.replace("official", "");
-    nameTemp = nameTemp.replace("【OFFICIAL MV】", "");
-    nameTemp = nameTemp.replace("OFFICIAL", "");
-    nameTemp = nameTemp.replace("【", "");
-    nameTemp = nameTemp.replace("】", "");
-    nameTemp = nameTemp.replace(/["']/g, "");
-    nameTemp = nameTemp.split('.').join("");
-    stringName = nameTemp.split(" ");
-    for(var i = stringName.length -1; i >= 0; i--)
-    {
-        str = "";
-        for(var j = 0; j < i; j++)
-            str +=  stringName[j] + "+";
-        str += stringName[i];
-        console.log(str);
-        keywords.push(str);
-    }
 
-    var maxFound = -1;
-    var i = 0;
 
-    function fetchITunes(arg, callback) {
-        // console.log(arg.toString);
-        arg = arg.toString();
-        searchitunes (
-            {
-                term: arg
-            }, function(err, data) {
-                // console.log("HERE");
-                // console.log(data);
-                if(data !== null){
-                    if(data["resultCount"] !== 0 && maxFound == -1){
-                        maxFound = i;
-                    }
-                }
-                
-                i++;
-                callback(data);
-                
-            }
-        );
-        // var request = https.get('https://itunes.apple.com/search?term=' + arg , function(response){
-        //     var Data = '';
-        //     response.on("data", function(chunk){
-        //         Data += chunk;
-        //     });
-
-        //     response.on("end", function(){
-        //         // console.log("i = " + i);
-        //         // console.log(Data);
-
-        //         // console.log(Data);
-        //         var objData = JSON.parse(Data);
-        //         // console.log(arg);
-        //         // console.log(i);
-        //         // console.log("MaxFound: " + maxFound);
-        //         if(objData["resultCount"] !== 0 && maxFound == -1){
-        //             maxFound = i;
-        //         }
-        //         i++;
-        //         callback(objData);
-        //     });
-        // });
-    }
-
-    function seriesITunes(keyword) {
+    function startDownload() {
         var imageName;
         var songName;
-        if(keyword) {
-            console.log("key " + keyword);
-            fetchITunes(keyword, function(Data){
-                iTunesData.push(Data);
-                return seriesITunes(keywords.shift());
-            });
-        } else {
+
+            req.body.title = req.body.title + " - " + req.body.artist;
             proc = new ffmpeg({source:stream});
             proc.setFfmpegPath('./ffmpeg.exe');
+
+            proc.save("./music/" + req.body.title + ".mp3");
+
+
+
             proc.on('end', function(){
                 console.log('done');
+    
 
-                if(maxFound !== -1){
+                var ffmetadata = require("ffmetadata");
 
+                // Get AlbumArt
+                req.body.albumArt = req.body.albumArt.replace("https", "http");
 
-                    console.log("MaxFound = " + maxFound);
-                    var ffmetadata = require("ffmetadata");
-                    var selectedResult = 0;
-                    for(var a = 0; a < iTunesData[maxFound]["results"].length; a++){
-                        if(iTunesData[maxFound]["results"][a]["collectionArtistName"] !== "Various Artists" && iTunesData[maxFound]["results"][a]["kind"] === "song"){
-                            selectedResult = a;
-                            break;
-                        }
-                    }
+                http.get(req.body.albumArt, function(resPic){
+                    console.log("GET PIC");
+                    var imagedata = '';
+                    resPic.setEncoding('binary');
 
-
-                    console.log("Number = " + a);
-
-
-                    var useData = iTunesData[maxFound]["results"][selectedResult];
-
-                    useData["trackName"] = useData["trackName"].replace(/["']/g, "");
-                    
-
-
-                    
-                    // Rename the song
-                    fs.rename("./music/" + videoName, "./music/" + useData["trackName"] + ".mp3", function(){
-                        if(useData["artworkUrl600"] !== undefined)
-                            var albumArt = useData["artworkUrl600"];
-                        else if(useData["artworkUrl100"] !== undefined)
-                            var albumArt = useData["artworkUrl100"].replace("100x100", "600x600");
-                        // Get AlbumArt
-                        http.get(albumArt, function(resPic){
-                            var imagedata = '';
-                            resPic.setEncoding('binary');
-
-                            resPic.on('data', function(chunk){
-                                imagedata += chunk;
-                            });
-
-                            resPic.on('end', function(){
-
-                                imageName = makeid();
-
-                                // Write an albumart to file
-                                fs.writeFile("./music/" + imageName + ".jpg", imagedata, 'binary', function(err){
-                                    if(err) throw err;
-                                    else {
-                                        var options = {
-                                          attachments: ["./music/" + imageName + ".jpg"],
-                                        };
-                                        options["id3v2.3"] = true;
-
-                                        data = {
-                                            artist: useData["artistName"].toString(),
-                                            album: useData["collectionName"].toString(),
-                                            title: useData["trackName"].toString(),
-                                            date: useData["releaseDate"].toString(),
-                                            track: useData["trackNumber"].toString(),
-                                            disc: useData["discNumber"].toString()
-                                        };
-                                        // Add albumart to song metadata
-                                        ffmetadata.write("./music/" + useData["trackName"] + ".mp3", data, options, function(err) {
-                                            if (err) {console.error("Error writing cover art"); console.log(err);}
-                                            songName = useData["trackName"] + ".mp3";
-                                            // else console.log("Cover art added");
-                                            console.log("DONE!!!!");
-                                            res.render('download', {musicName: nameTemp, albumart: imageName+".jpg", songName: songName, title: nameTemp});
-                                            // Write other metadata to song
-                                            // ffmetadata.write("./music/" + useData["trackName"] + ".mp3", data, function(err) {
-                                            //     if (err) console.error("Error writing metadata", err);
-                                            //     else console.log("Data written");
-                                            // });
-                                        });
-                                    }
-                                });
-                            });
-                        });
+                    resPic.on('data', function(chunk){
+                        imagedata += chunk;
                     });
 
-                } else {
-                    res.render('download', {musicName: nameTemp, albumart: thumbnail, songName: videoName, title: nameTemp});
+                    resPic.on('end', function(){
 
-                }
-                // res.writeHead(302, {
-                //     'Location': '/'
-                // });
-                // res.end();
-                // res.render('download', {musicName: nameTemp, albumart: imageName+".jpg", songName: songName+".mp3"});
-                
+                        imageName = makeid();
+
+                        // Write an albumart to file
+                        fs.writeFile("./music/" + imageName + ".jpg", imagedata, 'binary', function(err){
+                            if(err) throw err;
+                            else {
+                                var options = {
+                                  attachments: ["./music/" + imageName + ".jpg"],
+                                };
+
+                                if(req.body.platform=="Windows")
+                                    options["id3v2.3"] = true;
+
+                                data = {
+                                    artist: req.body.artist,
+                                    album: req.body.album,
+                                    title: req.body.title,
+                                    date: req.body.date,
+                                    track: req.body.track,
+                                    disc: req.body.disc
+                                };
+                                // Add albumart to song metadata
+                                ffmetadata.write("./music/" + req.body.title + ".mp3", data, options, function(err) {
+                                    if (err) {console.error("Error writing cover art"); console.log(err);}
+                                    songName = req.body.title + ".mp3";
+                                    console.log("DONE!!!!");
+                                    res.render('download', {title: "MusicTube | " + req.body.title, musicName: req.body.title, albumart: req.body.albumArt, songName: songName});
+
+                                });
+                            }
+                        });
+                    });
+                });
             });
-            // res.render('download', {musicName: nameTemp, albumart: imageName+".jpg", songName: songName+".mp3"});
-            proc.save("./music/" + videoName);
 
-            // console.log("done" + maxFound);
-            // console.log(iTunesData[maxFound]);
-
-        }
     }
 
-    seriesITunes(keywords.shift());
+    startDownload();
 
 
     

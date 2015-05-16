@@ -22,7 +22,7 @@ html, body {
   /*padding: 50px;*/
   /*font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;*/
   height: 100%;
-  overflow: hidden;
+  /*overflow: hidden;*/
 }
 
 a {
@@ -40,39 +40,58 @@ a {
 	width: 100%;
   height: 100%;
 	vertical-align: middle;
+  position: fixed;
+
+
+}
+
+.mask {
   
-  &:before {
+}
+
+.mask:before {
     content: '';
     position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
-    background-image: linear-gradient(to bottom right,#002f4b,#dc4225);
-    opacity: .6; 
-  }
+    background-image: linear-gradient(to bottom,rgba(0, 47, 75, 1),rgba(220, 66, 37, 0.6));
+    opacity: 1; 
+}
+
+.black-mask {
+  
+}
+
+.black-mask:before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: linear-gradient(to bottom,rgba(20, 20, 20, 0.4),rgba(20, 20, 20, 1));
+    opacity: 1; 
+}
+
+.indexContent{
+
+  margin-top: 10em;
 }
 
 .center{
 	text-align: center;
 }
 
-#mydiv {
-    position:fixed;
-    top: 50%;
-    left: 50%;
-    width:40em;
-    height:18em;
-    margin-top: -9em; /*set to a negative number 1/2 of your height*/
-    margin-left: -20em; /*set to a negative number 1/2 of your width*/
-    /*border: 1px solid #ccc;*/
-    background-color: rgba(255, 255, 255, 1);
-    /*border-radius: 10px;*/
-    box-shadow: 0px 4px 20px black;
-    overflow: none;
-    padding-left: 2em;
-    padding-right: 2em;
+.content{
+  z-index: 1000;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  color: white;
 }
+
 
 .blurImage{
 	top: -100px;
@@ -94,11 +113,14 @@ input[type="text"] {
   padding: 10px;
   border: none;
   border-bottom: solid 2px #c9c9c9;
-  width: 100%;
+  background-color: rgba(255,255,255,0.9);
+  width: 80%;
   line-height: 1.5em;
   font-size: 1.5em;
   height: 2em;
   transition: border 0.3s;
+  color: #555;
+  border-radius: 5px;
 }
 input[type="text"]:focus,
 input[type="text"].focus {
@@ -116,7 +138,7 @@ button:active,
 button:hover
 {
     outline:0px !important;
-    -webkit-appearance:none;
+    /*-webkit-appearance:none;*/
 }
 
 .blue-button{
@@ -126,20 +148,152 @@ button:hover
 	font-size: 1.2em;
 	background-color: #3498db;
 	position: relative;
-	box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.6);
+	box-shadow: 0px 4px 0px rgba(22, 122, 189, 0.6);
 	color: white;
+  border-radius: 5px;
 	border: 0;
 }
 
 .blue-button:active{
 	top: 2px;
-	box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.6);
+	box-shadow: 0px 2px 0px rgba(22, 122, 189, 0.6);
+}
+
+.new-blue-button{
+  /*margin: 1em;*/
+  height: 3em;
+  font-size: 1.2em;
+  background-color: #3498db;
+  position: relative;
+  box-shadow: 0px 4px 0px rgba(22, 122, 189, 0.6);
+  color: white;
+  border-radius: 5px;
+  border: 0;
+}
+
+.new-blue-button:active{
+  top: 2px;
+  box-shadow: 0px 2px 0px rgba(22, 122, 189, 0.6);
+}
+
+.new-yellow-button{
+  /*margin: 1em;*/
+  height: 3em;
+  font-size: 1.2em;
+  background-color: rgba(243, 156, 18,1.0);
+  position: relative;
+  box-shadow: 0px 4px 0px rgba(213, 126, 0,0.6);
+  color: white;
+  border-radius: 5px;
+  border: 0;
+}
+
+.new-yellow-button:active{
+  top: 2px;
+  box-shadow: 0px 2px 0px rgba(213, 126, 0,0.6);
 }
 
 .moreHeight{
 	width:40em !important;
     height:42em !important;
-    margin-top: -21em !important; /*set to a negative number 1/2 of your height*/
-    margin-left: -20em !important; /*set to a negative number 1/2 of your width*/
+    /*margin-top: -21em !important; set to a negative number 1/2 of your height*/
+    /*margin-left: -20em !important; set to a negative number 1/2 of your width*/
     
+}
+
+.input_hidden {
+    position: absolute;
+    left: -9999px;
+}
+
+.selected {
+    /*background-color: #ccc;*/
+    filter: none !important;
+    -webkit-filter: grayscale(0) !important;
+}
+
+#radio label {
+    display: inline-block;
+    cursor: pointer;
+    filter: gray; /* IE6-9 */
+    filter: grayscale(1); /* Firefox 35+ */
+    -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
+}
+
+
+#radio label:hover {
+    /*background-color: #efefef;*/
+    filter: none;
+    -webkit-filter: grayscale(0.5);
+}
+
+#radio label img {
+    padding: 3px;
+    
+}
+
+.albumArt {
+  width: 100%;
+}
+
+.platformIcon {
+  width: 50px;
+}
+
+.platformLabel {
+  padding-left: 0.3em;
+  padding-right: 0.5em;
+  font-size: 1.4em;
+  font-weight: normal;
+}
+
+.clear {
+  clear: both;
+}
+
+.headSpace {
+  margin-top: 8em;
+}
+
+@media screen and (max-width: 767px){
+  .headSpace {
+    margin-top: 2em;
+  }
+
+}
+
+#edit {
+  color: #7BC2FF;
+}
+
+.editInfo input{
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 5px !important;
+}
+
+.albumChoose {
+  height: 250px;
+}
+
+
+progress {
+    background-color: #f3f3f3;
+    border: 0;
+    height: 0.5em;
+    width: 100%;
+}
+
+progress::-webkit-progress-bar {
+    background-color: #e0eaf0;
+}
+
+progress::-webkit-progress-value {
+    background-color: #329ad1;
+}
+
+progress::-moz-progress-bar {
+    background-color: #329ad1;
 }
